@@ -140,6 +140,14 @@ class AIService {
   detectIntent(message) {
     const lowerMessage = message.toLowerCase();
     
+    // Check if message contains a transaction hash (0x followed by 64 hex chars)
+    if (/0x[a-fA-F0-9]{64}/.test(message)) {
+      // If it looks like a tx hash, check if it's meant to query tx status
+      if (!/send|transfer|to\s+0x/i.test(message)) {
+        return 'txStatus';
+      }
+    }
+    
     for (const [intent, patterns] of Object.entries(this.intentPatterns)) {
       for (const pattern of patterns) {
         if (pattern.test(lowerMessage)) {
@@ -258,6 +266,8 @@ class AIService {
       const receipt = await this.provider.getTransactionReceipt(entities.txHash);
       let status = 'Pending';
       let statusEmoji = '⏳';
+      let confirmations = 0;
+      let transactionFee = 'N/A';
 
       if (receipt) {
         if (receipt.status === 1) {
@@ -267,14 +277,23 @@ class AIService {
           status = 'Failed ❌';
           statusEmoji = '❌';
         }
+        
+        // Calculate confirmations
+        const currentBlock = await this.provider.getBlockNumber();
+        confirmations = currentBlock - receipt.blockNumber;
+        
+        // Calculate transaction fee
+        const gasUsed = receipt.gasUsed;
+        const gasPrice = tx.gasPrice;
+        transactionFee = ethers.formatEther(gasUsed * gasPrice);
       }
 
-      const txInfo = `${statusEmoji} **Transaction Status**\n\n**Hash:** \`${entities.txHash.substring(0, 10)}...${entities.txHash.substring(58)}\`\n**Status:** ${status}\n**From:** \`${DeFiServices.formatAddress(tx.from)}\`\n**To:** \`${DeFiServices.formatAddress(tx.to)}\`\n**Value:** ${ethers.formatEther(tx.value)} 0G\n**Gas Price:** ${ethers.formatUnits(tx.gasPrice, 'gwei')} Gwei\n**Nonce:** ${tx.nonce}\n\n[View on Explorer](${process.env.REACT_APP_0G_BLOCK_EXPLORER}/tx/${entities.txHash})`;
+      const txInfo = `${statusEmoji} **Transaction Status**\n\n**Hash:** \`${entities.txHash.substring(0, 10)}...${entities.txHash.substring(58)}\`\n**Status:** ${status}\n**From:** \`${DeFiServices.formatAddress(tx.from)}\`\n**To:** \`${DeFiServices.formatAddress(tx.to)}\`\n**Value:** ${ethers.formatEther(tx.value)} 0G\n**Gas Used:** ${receipt ? receipt.gasUsed.toString() : 'N/A'}\n**Gas Price:** ${ethers.formatUnits(tx.gasPrice, 'gwei')} Gwei\n**Transaction Fee:** ${transactionFee} 0G\n**Block Number:** ${tx.blockNumber}\n**Confirmations:** ${confirmations}\n**Nonce:** ${tx.nonce}\n\n[View on Explorer](${process.env.REACT_APP_0G_BLOCK_EXPLORER}/tx/${entities.txHash})`;
 
       return {
         text: txInfo,
         type: 'txStatus',
-        data: { tx, receipt, status }
+        data: { tx, receipt, status, confirmations, transactionFee }
       };
     } catch (error) {
       return {
