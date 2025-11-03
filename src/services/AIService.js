@@ -117,7 +117,7 @@ class AIService {
         /gas/i, /fee/i, /cost/i
       ],
       networkInfo: [
-        /network.*status/i, /network/i, /chain.*status/i, /blockchain.*status/i
+        /network\s*status/i, /network/i, /chain.*status/i, /blockchain.*status/i, /0g\s*network/i
       ],
       blockInfo: [
         /block.*number/i, /latest.*block/i, /current.*block/i, /block.*height/i
@@ -148,10 +148,27 @@ class AIService {
       }
     }
     
+    // Check for more specific patterns first (longest match wins)
+    const priorityIntents = ['networkInfo', 'blockInfo', 'gasPrice', 'txStatus', 'faucet', 'balance', 'send'];
+    
+    for (const intent of priorityIntents) {
+      const patterns = this.intentPatterns[intent];
+      if (patterns) {
+        for (const pattern of patterns) {
+          if (pattern.test(lowerMessage)) {
+            return intent;
+          }
+        }
+      }
+    }
+    
+    // Then check remaining intents
     for (const [intent, patterns] of Object.entries(this.intentPatterns)) {
-      for (const pattern of patterns) {
-        if (pattern.test(lowerMessage)) {
-          return intent;
+      if (!priorityIntents.includes(intent)) {
+        for (const pattern of patterns) {
+          if (pattern.test(lowerMessage)) {
+            return intent;
+          }
         }
       }
     }
@@ -305,7 +322,15 @@ class AIService {
 
   async handleGasIntent(entities) {
     try {
-      const gasPrice = await this.provider.getGasPrice();
+      let gasPrice;
+      try {
+        gasPrice = await this.provider.getGasPrice();
+      } catch (e) {
+        // Fallback: try using getFeeData if getGasPrice fails
+        const feeData = await this.provider.getFeeData();
+        gasPrice = feeData.gasPrice || ethers.parseUnits('1', 'gwei'); // Default to 1 Gwei
+      }
+      
       const gasPriceGwei = ethers.formatUnits(gasPrice, 'gwei');
 
       return {
@@ -325,7 +350,15 @@ class AIService {
     try {
       const blockNumber = await this.provider.getBlockNumber();
       const block = await this.provider.getBlock(blockNumber);
-      const gasPrice = await this.provider.getGasPrice();
+      
+      let gasPrice;
+      try {
+        gasPrice = await this.provider.getGasPrice();
+      } catch (e) {
+        // Fallback to getFeeData if getGasPrice fails
+        const feeData = await this.provider.getFeeData();
+        gasPrice = feeData.gasPrice || ethers.parseUnits('1', 'gwei');
+      }
 
       return {
         text: `🌐 **0G Mainnet Status**\n\n**Network:** 0G Mainnet\n**Chain ID:** 16661\n**Latest Block:** #${blockNumber}\n**Block Time:** ~${block.timestamp}\n**Gas Price:** ${ethers.formatUnits(gasPrice, 'gwei')} Gwei\n\n**Network Details:**\n• **RPC:** ${process.env.REACT_APP_0G_RPC_URL}\n• **Explorer:** ${process.env.REACT_APP_0G_BLOCK_EXPLORER}\n• **Storage Indexer:** ${process.env.REACT_APP_0G_STORAGE_INDEXER}`,
@@ -361,7 +394,15 @@ class AIService {
 
   async handleGasPriceIntent() {
     try {
-      const gasPrice = await this.provider.getGasPrice();
+      let gasPrice;
+      try {
+        gasPrice = await this.provider.getGasPrice();
+      } catch (e) {
+        // Fallback: try using getFeeData if getGasPrice fails
+        const feeData = await this.provider.getFeeData();
+        gasPrice = feeData.gasPrice || ethers.parseUnits('1', 'gwei'); // Default to 1 Gwei
+      }
+      
       const gasPriceGwei = ethers.formatUnits(gasPrice, 'gwei');
 
       return {
