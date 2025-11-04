@@ -51,7 +51,7 @@ const LandingPage = () => {
           <div className="floating-cards">
             <div className="floating-card card-1">
               <div className="card-icon">💰</div>
-              <div className="card-title">Balance: 1,250 KITE</div>
+              <div className="card-title">Balance: 1,250 0G</div>
             </div>
             <div className="floating-card card-2">
               <div className="card-icon">🚀</div>
@@ -100,7 +100,7 @@ const LandingPage = () => {
             </div>
             <h3 className="feature-title">Instant Transactions</h3>
             <p className="feature-description">
-              Send KITE tokens securely with AI-powered gas optimization and recipient validation. 
+              Send 0G tokens securely with AI-powered gas optimization and recipient validation. 
               Smart fee estimation saves you money.
             </p>
             <div className="feature-tags">

@@ -543,7 +543,7 @@ class DeFiServices {
   getDeFiProtocols() {
     return [
       {
-        name: 'Kite DEX',
+        name: '0G DEX',
         tvl: '4.2M',
         apy: '15.8%',
         description: 'Advanced AMM DEX with concentrated liquidity',
@@ -551,7 +551,7 @@ class DeFiServices {
         features: ['Spot Trading', 'Limit Orders', 'LP Farming']
       },
       {
-        name: 'Kite Lending',
+        name: '0G Lending',
         tvl: '2.8M',
         apy: '12.3%',
         description: 'Overcollateralized lending and borrowing protocol',
@@ -559,15 +559,15 @@ class DeFiServices {
         features: ['Lending', 'Borrowing', 'Flash Loans']
       },
       {
-        name: 'Kite Staking',
+        name: '0G Staking',
         tvl: '8.1M',
         apy: '18.7%',
-        description: 'Native KITE staking with validator rewards',
+        description: 'Native 0G staking with validator rewards',
         category: 'Staking',
         features: ['Validator Staking', 'Delegation', 'Governance']
       },
       {
-        name: 'Kite Yield',
+        name: '0G Yield',
         tvl: '3.5M',
         apy: '35.2%',
         description: 'Automated yield farming strategies',
@@ -575,7 +575,7 @@ class DeFiServices {
         features: ['Auto-compounding', 'Strategy Vaults', 'Multi-token Rewards']
       },
       {
-        name: 'Kite Insurance',
+        name: '0G Insurance',
         tvl: '1.2M',
         apy: '8.5%',
         description: 'Decentralized insurance for DeFi protocols',

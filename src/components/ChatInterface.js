@@ -1,21 +1,59 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import WalletStatus from './WalletStatus';
+import ShareChat from './ShareChat';
 import AIService from '../services/AIService';
 
-const ChatInterface = () => {
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      type: 'bot',
-      content: '👋 **Welcome to 0G DeFi Assistant!**\n\nYour intelligent companion for the 0G Mainnet blockchain.\n\n**Quick Start:**\n• "What\'s my balance?" - Check wallet\n• "Network status" - Get chain info\n• "Check tx 0x..." - Track transactions\n• "Current gas price" - View gas fees\n• "Claim faucet" - Get free tokens\n\n**Available Commands:**\n• Send tokens: "Send 1.5 0G to 0x..."\n• Show address: "My address"\n• Check block: "Latest block"\n• View explorer links: "Faucet"\n\n**Just chat naturally - I understand what you need!** 🚀',
-      timestamp: new Date()
-    }
-  ]);
+const ChatInterface = ({ initialMessages = null }) => {
+  const defaultWelcome = {
+    id: 1,
+    type: 'bot',
+    content: '👋 **Welcome to 0G DeFi Assistant!**\n\nYour intelligent companion for the 0G Mainnet blockchain.\n\n**Quick Start:**\n• "What\'s my balance?" - Check wallet\n• "Network status" - Get chain info\n• "Check tx 0x..." - Track transactions\n• "Current gas price" - View gas fees\n• "Claim faucet" - Get free tokens\n\n**Available Commands:**\n• Send tokens: "Send 1.5 0G to 0x..."\n• Show address: "My address"\n• Check block: "Latest block"\n• View explorer links: "Faucet"\n\n**Just chat naturally - I understand what you need!** 🚀',
+    timestamp: new Date()
+  };
+
+  // Use initial messages if provided (shared session), otherwise use default
+  const initialChatMessages = initialMessages && initialMessages.length > 0
+    ? initialMessages.map(msg => ({
+        ...msg,
+        timestamp: msg.timestamp instanceof Date ? msg.timestamp : new Date(msg.timestamp)
+      }))
+    : [defaultWelcome];
+
+  const [messages, setMessages] = useState(initialChatMessages);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [walletSigner, setWalletSigner] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Get signer from DeFiServices (initialized from REACT_APP_PRIVATE_KEY in .env)
+  useEffect(() => {
+    const getSigner = () => {
+      try {
+        // DeFiServices is a singleton that initializes with the private key from .env
+        // The wallet property is the ethers.Wallet signer
+        if (AIService.DeFiServices && AIService.DeFiServices.wallet) {
+          console.log('✅ Wallet signer loaded from .env (REACT_APP_PRIVATE_KEY)');
+          setWalletSigner(AIService.DeFiServices.wallet);
+        } else {
+          console.warn('⚠️ DeFiServices wallet not initialized');
+          // Try to access it directly through the AIService export
+          setTimeout(() => {
+            if (AIService.DeFiServices && AIService.DeFiServices.wallet) {
+              console.log('✅ Wallet signer loaded (delayed)');
+              setWalletSigner(AIService.DeFiServices.wallet);
+            }
+          }, 100);
+        }
+      } catch (e) {
+        console.error('Error getting wallet signer:', e);
+      }
+    };
+    
+    getSigner();
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -138,7 +176,28 @@ const ChatInterface = () => {
         {/* Header */}
         <div className="chat-header">
           <h1 className="chat-title">DeFi AI Assistant</h1>
-          <WalletStatus />
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <button
+              onClick={() => setShowShareModal(true)}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseOver={(e) => e.target.style.backgroundColor = '#059669'}
+              onMouseOut={(e) => e.target.style.backgroundColor = '#10b981'}
+              title="Share this chat session to 0G Storage"
+            >
+              📤 Share Chat
+            </button>
+            <WalletStatus />
+          </div>
         </div>
 
         {/* Messages */}
@@ -220,6 +279,15 @@ const ChatInterface = () => {
           </div>
         </div>
       </div>
+
+      {/* Share Modal */}
+      {showShareModal && (
+        <ShareChat 
+          messages={messages}
+          signer={walletSigner}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
     </div>
   );
 };
