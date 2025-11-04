@@ -28,27 +28,29 @@ const ChatInterface = ({ initialMessages = null }) => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Get signer from DeFiServices (initialized from REACT_APP_PRIVATE_KEY in .env)
+  // Get signer from REACT_APP_PRIVATE_KEY in .env
   useEffect(() => {
-    const getSigner = () => {
+    const getSigner = async () => {
       try {
-        // DeFiServices is a singleton that initializes with the private key from .env
-        // The wallet property is the ethers.Wallet signer
-        if (AIService.DeFiServices && AIService.DeFiServices.wallet) {
-          console.log('✅ Wallet signer loaded from .env (REACT_APP_PRIVATE_KEY)');
-          setWalletSigner(AIService.DeFiServices.wallet);
-        } else {
-          console.warn('⚠️ DeFiServices wallet not initialized');
-          // Try to access it directly through the AIService export
-          setTimeout(() => {
-            if (AIService.DeFiServices && AIService.DeFiServices.wallet) {
-              console.log('✅ Wallet signer loaded (delayed)');
-              setWalletSigner(AIService.DeFiServices.wallet);
-            }
-          }, 100);
+        const privateKey = process.env.REACT_APP_PRIVATE_KEY;
+        if (!privateKey) {
+          console.warn('⚠️ REACT_APP_PRIVATE_KEY not set in .env');
+          setWalletSigner(null);
+          return;
         }
+
+        // Import ethers dynamically to avoid issues
+        const { ethers } = await import('ethers');
+        const RPC_URL = 'https://evmrpc.0g.ai';
+        const provider = new ethers.JsonRpcProvider(RPC_URL);
+        const signer = new ethers.Wallet(privateKey, provider);
+        
+        console.log('✅ Wallet signer loaded from .env (REACT_APP_PRIVATE_KEY)');
+        console.log(`   👤 Signer Address: ${signer.address}`);
+        setWalletSigner(signer);
       } catch (e) {
-        console.error('Error getting wallet signer:', e);
+        console.error('❌ Error initializing wallet signer:', e.message);
+        setWalletSigner(null);
       }
     };
     
