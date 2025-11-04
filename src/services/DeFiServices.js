@@ -5,24 +5,31 @@ class DeFiServices {
     this.provider = null;
     this.wallet = null;
     this.isInitialized = false;
-    this.init();
+    this.initPromise = this.init();
   }
 
   async init() {
     try {
       // Initialize provider for 0G Mainnet
-      this.provider = new ethers.JsonRpcProvider(process.env.REACT_APP_0G_RPC_URL);
+      const rpcUrl = process.env.REACT_APP_0G_RPC_URL || 'https://rpc.ankr.com/0g_mainnet_evm';
+      this.provider = new ethers.JsonRpcProvider(rpcUrl);
       
       // Initialize wallet with private key
-      if (process.env.REACT_APP_PRIVATE_KEY) {
-        this.wallet = new ethers.Wallet(process.env.REACT_APP_PRIVATE_KEY, this.provider);
+      const privateKey = process.env.REACT_APP_PRIVATE_KEY;
+      if (privateKey) {
+        this.wallet = new ethers.Wallet(privateKey, this.provider);
         this.isInitialized = true;
-        console.log('DeFi Services initialized successfully on 0G Mainnet');
+        console.log('✅ DeFi Services initialized successfully');
+        console.log(`   📍 RPC: ${rpcUrl}`);
+        console.log(`   👤 Signer: ${this.wallet.address}`);
+        return true;
       } else {
-        console.error('Private key not found in environment variables');
+        console.error('❌ Private key not found in REACT_APP_PRIVATE_KEY environment variable');
+        return false;
       }
     } catch (error) {
-      console.error('Failed to initialize DeFi Services:', error);
+      console.error('❌ Failed to initialize DeFi Services:', error);
+      return false;
     }
   }
 

@@ -650,5 +650,8 @@ User context: ${JSON.stringify(context)}`;
   }
 }
 
+// Import DeFiServices singleton and attach to AIService
 const aiService = new AIService();
+aiService.DeFiServices = DeFiServices;  // DeFiServices is already an instance
+
 export default aiService;

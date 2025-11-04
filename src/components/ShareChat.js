@@ -158,8 +158,9 @@ const ShareChat = ({ messages, onClose, signer = null }) => {
                 ℹ️ <strong>0G Storage Sharing:</strong>
               </p>
               <ul className="text-xs text-blue-600 space-y-1">
-                <li>✅ <strong>Export</strong> - Save chat locally (always works)</li>
-                <li>☁️ <strong>0G Storage</strong> - Decentralized share link (requires wallet)</li>
+                <li>☁️ <strong>0G Storage</strong> - Upload chat to decentralized network</li>
+                <li>🔐 <strong>Signer</strong> - Automatically loaded from .env</li>
+                <li>💾 <strong>Export</strong> - Also save chat locally as JSON/TXT</li>
               </ul>
             </div>
           </div>
@@ -209,15 +210,20 @@ const ShareChat = ({ messages, onClose, signer = null }) => {
                   type="text"
                   readOnly
                   value={uploadResult.shareableLink}
-                  className="flex-1 px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg font-mono text-sm"
+                  className="flex-1 px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg font-mono text-sm overflow-auto"
+                  title={uploadResult.shareableLink}
                 />
                 <button
                   onClick={handleCopyLink}
-                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition"
+                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition whitespace-nowrap"
                 >
                   {copied ? '✓ Copied' : 'Copy'}
                 </button>
               </div>
+              <p className="text-xs text-gray-500 mt-1">
+                💡 <strong>Note:</strong> This link will work immediately on this device. 
+                On new devices/browsers, the 0G network may take 5-10 minutes to index the file.
+              </p>
             </div>
 
             {/* Info */}
