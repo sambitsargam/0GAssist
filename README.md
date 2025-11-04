@@ -37,6 +37,14 @@
 - Provide contextual responses
 - Support for follow-up questions
 
+### ☁️ **Decentralized Chat Storage (0G Storage)**
+- **Save chat sessions** permanently on 0G decentralized storage
+- **Share conversations** with unique links (available on all devices)
+- **Export locally** as JSON, TXT, or CSV
+- **Auto-retry mechanism** for cross-device sharing (30s intervals)
+- **Instant availability** on same device via browser cache
+- **Global availability** after 5-10 minutes of indexing
+
 ## 🔗 Network Information
 
 | Property | Value |
@@ -46,7 +54,11 @@
 | **Token Symbol** | 0G |
 | **RPC Endpoint** | https://evmrpc.0g.ai |
 | **Block Explorer** | https://chainscan.0g.ai |
-| **Storage Indexer** | https://indexer-storage-turbo.0g.ai |
+| **Storage Network** | 0G Galileo Testnet |
+| **Storage Chain ID** | 16602 |
+| **Storage RPC** | https://evmrpc-testnet.0g.ai |
+| **Storage Indexer** | https://indexer-storage-testnet-turbo.0g.ai |
+| **Flow Contract** | 0x22E03a6A89B950F1c82ec5e74F8eCa321a105296 |
 
 ## 🛠️ Tech Stack
 
@@ -85,6 +97,12 @@
 ```
 "Check tx 0x..."            → Check transaction status
 "Is my tx confirmed?"       → Verify transaction
+```
+
+### Chat Storage & Sharing
+```
+"Share Chat"                → Save conversation to 0G Storage
+"Export Chat"               → Download as JSON/TXT/CSV
 ```
 
 ### Help
@@ -155,6 +173,53 @@ Query 0G Mainnet via ethers.js provider → Get real-time data
 ### 4. **Response Generation**
 Format data → Add blockchain links → Return to user
 
+## ☁️ 0G Storage - Chat Sharing
+
+### Save & Share Conversations
+
+The app supports permanent storage and sharing of chat sessions using **0G Decentralized Storage**:
+
+#### How It Works
+1. **Click "Share Chat"** button after messages
+2. **Name your session** (auto-filled with timestamp)
+3. **Connect wallet** to pay gas fees
+4. **Click "Upload to 0G Storage"**
+5. **Get shareable link** - valid on all devices worldwide
+
+#### Share Link Timeline
+- **Instant** ⚡ - Works on same device (localStorage)
+- **5 minutes** 🔄 - Available on new devices via auto-retry
+- **10+ minutes** 🌍 - Globally indexed and queryable
+- **Forever** 📌 - Permanently stored on 0G network
+
+#### Share Features
+```
+✅ Save conversations to blockchain
+✅ Share with unique hash-based links
+✅ Export as JSON, TXT, or CSV locally
+✅ Auto-retry on new devices (5-10 min wait)
+✅ Works across browsers and devices
+✅ Permanent decentralized storage
+```
+
+#### Example
+```
+Session uploaded:
+  Hash: 0x428af307c64fc0d2f933efd05744e1d450a20275a14beb6e13f54e317297b4f5
+  Link: http://localhost:3000/?share=0x428af307...
+  Share this link to access conversation on any device
+```
+
+### Technical Details
+- **Storage Network**: 0G Galileo Testnet (Mainnet coming soon)
+- **Data Format**: JSON with metadata
+- **File Size**: Optimized for blockchain
+- **MIME Type**: application/json
+- **Fallback**: Browser cache for instant retrieval
+- **Indexer**: https://indexer-storage-turbo.0g.ai
+
+## 🔥 How It Works
+
 ## 📚 Data Accuracy
 
 ✅ **All data is real-time from the blockchain**
@@ -182,6 +247,7 @@ Format data → Add blockchain links → Return to user
 | blockInfo | block, latest block | "Latest block" |
 | address | address, my address | "My address" |
 | faucet | faucet, claim | "Claim faucet" |
+| shareChat | share, save, export | "Share this chat" |
 | help | help, what can you do | "Help" |
 
 ## 🎯 Example Interactions
@@ -202,6 +268,17 @@ Assistant: Queries blockchain, shows transaction status
 ```
 User: "Network status"
 Assistant: Shows latest block, gas price, chain ID
+```
+
+### Share Conversation
+```
+User: Clicks "Share Chat" button
+1. Names session: "DeFi Discussion Nov 4"
+2. Clicks "Upload to 0G Storage"
+3. Approves transaction in wallet
+4. Gets link: http://localhost:3000/?share=0x428af307...
+5. Shares link with others
+6. Others access on same device instantly, or auto-retry on new device
 ```
 
 ## 🚀 Deployment
